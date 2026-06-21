@@ -42,27 +42,27 @@
  
  // Left eye — horizontal axis
  #define LX_MID    90        // Center position
- #define LX_RANGE  30        // Total range of motion (±20° from center)
+ #define LX_RANGE  35        // Total range of motion (±20° from center)
  
  // Left eye — vertical axis
  #define LY_MID    90        // Center position
- #define LY_RANGE  20        // Total range of motion (±15° from center)
+ #define LY_RANGE  30        // Total range of motion (±15° from center)
  
  // Left top eyelid
  #define L_LID_OPEN   60     // Degrees when fully open
- #define L_LID_SHUT   110    // Degrees when fully closed
+ #define L_LID_SHUT   120    // Degrees when fully closed
  
  // Right eye — horizontal axis (likely inverted vs. left)
  #define RX_MID    90        // Center position
- #define RX_RANGE  20        // Total range of motion
+ #define RX_RANGE  35        // Total range of motion
  
  // Right eye — vertical axis (likely inverted vs. left)
  #define RY_MID    90        // Center position
- #define RY_RANGE  20        // Total range of motion
+ #define RY_RANGE  30        // Total range of motion
  
  // Right top eyelid
  #define R_LID_OPEN   120    // Degrees when fully open (mirrored from left)
- #define R_LID_SHUT   70     // Degrees when fully closed
+ #define R_LID_SHUT   60     // Degrees when fully closed
  
  // ─────────────────────────────────────────────────────────────────────
  //  Derived limits  (computed from mid + range above)
