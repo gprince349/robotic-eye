@@ -1,31 +1,31 @@
 /**********************************************************************
-                     Single-Eye Lid Random
-  Same mood/action cycler as eye-random, but for one eye with only
-  top + bottom eyelid servos. No X/Y eyeball movement.
+                     Lid-Only Random (Left + Right)
+  Same mood/action cycler as eye-random, but only left + right top
+  eyelid servos. No X/Y eyeball movement.
  **********************************************************************/
 
 #include <Servo.h>
 
 // ─────────────────────────────────────────────────────────────────────
-//  Pin assignments  (Arduino Nano)
+//  Pin assignments  (same lid pins as eye-random / eye-tester)
 // ─────────────────────────────────────────────────────────────────────
-#define PIN_TOP_LID  5
-#define PIN_BOT_LID  6
+#define PIN_L_TOP_LID  5
+#define PIN_R_TOP_LID  8
 
 // ─────────────────────────────────────────────────────────────────────
 //  Servo objects
 // ─────────────────────────────────────────────────────────────────────
-Servo topLid;
-Servo botLid;
+Servo LtopLid;
+Servo RtopLid;
 
 // ─────────────────────────────────────────────────────────────────────
 //  Calibration — tweak these to match your physical build
 // ─────────────────────────────────────────────────────────────────────
-#define TOP_LID_OPEN   60
-#define TOP_LID_SHUT   120
+#define L_LID_OPEN   60
+#define L_LID_SHUT   120
 
-#define BOT_LID_OPEN   120
-#define BOT_LID_SHUT   80
+#define R_LID_OPEN   120
+#define R_LID_SHUT   60
 
 // ─────────────────────────────────────────────────────────────────────
 //  Speed floor — no servo step will ever be faster than this (ms/°)
@@ -52,11 +52,11 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Attaching lid servos...");
 
-  topLid.attach(PIN_TOP_LID);
-  botLid.attach(PIN_BOT_LID);
+  LtopLid.attach(PIN_L_TOP_LID);
+  RtopLid.attach(PIN_R_TOP_LID);
 
-  topLid.write(TOP_LID_OPEN);
-  botLid.write(BOT_LID_OPEN);
+  LtopLid.write(L_LID_OPEN);
+  RtopLid.write(R_LID_OPEN);
 
   delay(1000);
 
@@ -74,7 +74,7 @@ void loop() {
     startMillis = currentMillis;
   }
 
-  // blink, slow blink, double blink, flutter
+  // blink, slow blink, double blink, squint
   int weights[] = {35, 25, 25, 15};
   actionCycler(weightedRandom(weights, 4));
 }
@@ -102,7 +102,7 @@ void sweepDual(Servo &s1, int from1, int to1,
 }
 
 // ─────────────────────────────────────────────────────────────────────
-//  Blink — bottom lid mirrors top (mood shift inverted like dual-eye R lid)
+//  Blink — right lid mood shift inverted (mirrored mount)
 // ─────────────────────────────────────────────────────────────────────
 void blink(int spd1, int gap, int spd2) {
   closeEye(spd1);
@@ -111,38 +111,37 @@ void blink(int spd1, int gap, int spd2) {
 }
 
 void closeEye(int spd) {
-  sweepDual(topLid, TOP_LID_OPEN + topMoodShift, TOP_LID_SHUT,
-            botLid, BOT_LID_OPEN - topMoodShift, BOT_LID_SHUT,
+  sweepDual(LtopLid, L_LID_OPEN + topMoodShift, L_LID_SHUT,
+            RtopLid, R_LID_OPEN - topMoodShift, R_LID_SHUT,
             spd);
 }
 
 void openEye(int spd) {
-  sweepDual(topLid, TOP_LID_SHUT, TOP_LID_OPEN + topMoodShift,
-            botLid, BOT_LID_SHUT, BOT_LID_OPEN - topMoodShift,
+  sweepDual(LtopLid, L_LID_SHUT, L_LID_OPEN + topMoodShift,
+            RtopLid, R_LID_SHUT, R_LID_OPEN - topMoodShift,
             spd);
 }
 
-// Current open targets given mood (used by partial/flutter moves)
-int topOpenPos() { return TOP_LID_OPEN + topMoodShift; }
-int botOpenPos() { return BOT_LID_OPEN - topMoodShift; }
+int leftOpenPos()  { return L_LID_OPEN + topMoodShift; }
+int rightOpenPos() { return R_LID_OPEN - topMoodShift; }
 
 // ─────────────────────────────────────────────────────────────────────
 //  Micro-flutter — tiny lid jitter instead of eyeball saccade
 // ─────────────────────────────────────────────────────────────────────
 void microFlutter() {
-  int jt = random(-2, 3);
-  int jb = random(-2, 3);
+  int jl = random(-2, 3);
+  int jr = random(-2, 3);
   int spd = calmSpd(5);
-  int tFrom = topOpenPos();
-  int bFrom = botOpenPos();
-  int tTo = tFrom + jt;
-  int bTo = bFrom + jb;
+  int lFrom = leftOpenPos();
+  int rFrom = rightOpenPos();
+  int lTo = lFrom + jl;
+  int rTo = rFrom + jr;
 
-  sweepDual(topLid, tFrom, tTo,
-            botLid, bFrom, bTo, spd);
+  sweepDual(LtopLid, lFrom, lTo,
+            RtopLid, rFrom, rTo, spd);
   delay(random(80, 250));
-  sweepDual(topLid, tTo, tFrom,
-            botLid, bTo, bFrom, spd);
+  sweepDual(LtopLid, lTo, lFrom,
+            RtopLid, rTo, rFrom, spd);
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -194,18 +193,17 @@ void actionCycler(int action) {
 
     case 4: // partial squint — close partway, hold, reopen
       {
-        int tOpen = topOpenPos();
-        int bOpen = botOpenPos();
-        // Midpoint between open and shut
-        int tMid = (tOpen + TOP_LID_SHUT) / 2;
-        int bMid = (bOpen + BOT_LID_SHUT) / 2;
+        int lOpen = leftOpenPos();
+        int rOpen = rightOpenPos();
+        int lMid = (lOpen + L_LID_SHUT) / 2;
+        int rMid = (rOpen + R_LID_SHUT) / 2;
         int spd  = calmSpd(random(5, 10) * moodMult);
 
-        sweepDual(topLid, tOpen, tMid,
-                  botLid, bOpen, bMid, spd);
+        sweepDual(LtopLid, lOpen, lMid,
+                  RtopLid, rOpen, rMid, spd);
         delay(holdTime);
-        sweepDual(topLid, tMid, tOpen,
-                  botLid, bMid, bOpen, spd);
+        sweepDual(LtopLid, lMid, lOpen,
+                  RtopLid, rMid, rOpen, spd);
         Serial.println("Action: Squint");
       }
       break;

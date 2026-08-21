@@ -1,46 +1,37 @@
 /**********************************************************************
-                     Single-Eye Lid Tester
-  Animatronic single-eye mechanism using 2 SG90 micro-servos driven
-  directly from Arduino Nano pins via the Servo library.
-
-  Controls only:
-    - 1 top eyelid servo
-    - 1 bottom eyelid servo
-
+                     Lid-Only Tester (Left + Right)
+  Drives only the left and right top eyelid servos.
   No X/Y eyeball movement. No PWM board required.
  **********************************************************************/
 
 #include <Servo.h>
 
 // ─────────────────────────────────────────────────────────────────────
-//  Pin assignments  (Arduino Nano)
+//  Pin assignments  (same lid pins as eye-tester)
 // ─────────────────────────────────────────────────────────────────────
-#define PIN_TOP_LID  5    // Top eyelid
-#define PIN_BOT_LID  6    // Bottom eyelid
+#define PIN_L_TOP_LID  5    // Left  top eyelid
+#define PIN_R_TOP_LID  8    // Right top eyelid
 
 // ─────────────────────────────────────────────────────────────────────
 //  Servo objects
 // ─────────────────────────────────────────────────────────────────────
-Servo topLid;
-Servo botLid;
+Servo LtopLid;
+Servo RtopLid;
 
 // ─────────────────────────────────────────────────────────────────────
 //  Calibration — tweak these to match your physical build
 //  All values are in degrees (0–180)
 // ─────────────────────────────────────────────────────────────────────
+#define L_LID_OPEN   60     // Left  — degrees when fully open
+#define L_LID_SHUT   120    // Left  — degrees when fully closed
 
-// Top eyelid
-#define TOP_LID_OPEN   60     // Degrees when fully open
-#define TOP_LID_SHUT   120    // Degrees when fully closed
-
-// Bottom eyelid (typically inverted vs. top)
-#define BOT_LID_OPEN   120    // Degrees when fully open
-#define BOT_LID_SHUT   80     // Degrees when fully closed
+#define R_LID_OPEN   120    // Right — degrees when fully open (mirrored)
+#define R_LID_SHUT   60     // Right — degrees when fully closed
 
 // ─────────────────────────────────────────────────────────────────────
 //  Mood / behavior state
 // ─────────────────────────────────────────────────────────────────────
-int topMoodShift = 0;          // Offsets the eyelid open position (+open, -squint)
+int topMoodShift = 0;          // Offsets the eyelid open position
 
 // ─────────────────────────────────────────────────────────────────────
 //  Setup
@@ -49,14 +40,13 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Attaching lid servos...");
 
-  topLid.attach(PIN_TOP_LID);
-  botLid.attach(PIN_BOT_LID);
+  LtopLid.attach(PIN_L_TOP_LID);
+  RtopLid.attach(PIN_R_TOP_LID);
 
-  // Move lids to open position at startup
-  topLid.write(TOP_LID_OPEN);
-  botLid.write(BOT_LID_OPEN);
+  LtopLid.write(L_LID_OPEN);
+  RtopLid.write(R_LID_OPEN);
 
-  delay(1000);   // Let servos reach start position before anything else runs
+  delay(1000);
 
   Serial.println("Ready!");
 }
@@ -86,9 +76,6 @@ void sweepDual(Servo &s1, int from1, int to1,
 
 // ─────────────────────────────────────────────────────────────────────
 //  Blink
-//  spd1 — closing speed (ms/°, 0 = fastest)
-//  gap  — pause between close and open (ms)
-//  spd2 — opening speed
 // ─────────────────────────────────────────────────────────────────────
 void blink(int spd1, int gap, int spd2) {
   closeEye(spd1);
@@ -97,13 +84,13 @@ void blink(int spd1, int gap, int spd2) {
 }
 
 void closeEye(int spd) {
-  sweepDual(topLid, TOP_LID_OPEN + topMoodShift, TOP_LID_SHUT,
-            botLid, BOT_LID_OPEN + topMoodShift, BOT_LID_SHUT,
+  sweepDual(LtopLid, L_LID_OPEN + topMoodShift, L_LID_SHUT,
+            RtopLid, R_LID_OPEN - topMoodShift, R_LID_SHUT,
             spd);
 }
 
 void openEye(int spd) {
-  sweepDual(topLid, TOP_LID_SHUT, TOP_LID_OPEN + topMoodShift,
-            botLid, BOT_LID_SHUT, BOT_LID_OPEN + topMoodShift,
+  sweepDual(LtopLid, L_LID_SHUT, L_LID_OPEN + topMoodShift,
+            RtopLid, R_LID_SHUT, R_LID_OPEN - topMoodShift,
             spd);
 }
