@@ -1,0 +1,51 @@
+###################################################
+               Standard  Eye
+###################################################
+
+1. 6 servo moter
+2. 150gm petg
+3. 6 linkage stopper
+4. M2.5 15 4
+5. Self Piercing M2.2 sscrew 4 + 2
+
+
+6. 7x5 PCB green board
+7. 10 V 1000 Uf Capacitor x 1
+8. Ardino Nano x 1
+9. Type C USB Breakout
+10. Double Header Pin x 40
+
+
+
+###################################################
+                Lite Eye
+###################################################
+
+1. 2 servo moter
+2. 150gm petg
+3. 2 linkage stopper
+4. M2.5 15 4
+5. Self Piercing M2.2 sscrew 4 + 2
+
+
+6. 7x5 PCB green board
+7. 10 V 1000 Uf Capacitor x 1
+8. Ardino Nano x 1
+9. Type C USB Breakout
+10. Double Header Pin x 40
+11. Single Aluminium Wire 
+ 
+
+
+
+###################################################
+                Extras
+###################################################
+
+1. Soulder wire
+2. flux
+3. Thin Iron Rod (Sariya)
+4. Glue Gun
+5. Single Aluminium Wire 
+
+
